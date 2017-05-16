@@ -16,7 +16,8 @@ def dummify(df,cols,constant_and_drop=False):
 
 def churned(df,today,timedelta):
     '''
-    If (max_interview == interviewsDonePriorToThisOne) & (timedelta_since_last_interview>30) then churn == True
+    If (max_interview == interviewsDonePriorToThisOne) & (timedelta_since_last_interview>30)
+    then churn == True
     '''
     df['churned'] = (today - df['interviewTime'])>timedelta
 
@@ -63,14 +64,15 @@ def same_columns(df,col1,col2):
 
 def create_features_matrix(df,cols_to_keep,to_dummify = False,cols_to_dummify = None):
     '''
-    Create a dataframe with all users and their scaled features for calculating similarity, using Interview information (meaning paired information). The output is a similarity score per matched interview
+    Create a dataframe with all users and their scaled features for calculating similarity, using Interview information (meaning paired information).
+    The output is a similarity score per matched interview
     '''
     features_df = df[cols_to_keep]
     if dummify:
         features_df = dummify(features_df,cols_to_dummify)
     features_df = scale(features_df)
     all_matrix = np.asarray(features_df)
-    #add split df to vreate "2" vectors
+    #add split df to create "2" vectors
     features_matrix = all_matrix[:,1:]
     #interview ID
     id_matrix = all_matrix[:,0]
@@ -78,7 +80,7 @@ def create_features_matrix(df,cols_to_keep,to_dummify = False,cols_to_dummify = 
 
 def create_similarity_per_interview(user1_features,user2_fetures,metric = 'cosine'):
     '''
-    get both users features vector and calculate the similarity using chosen distance metric
+    Get both users features vector and calculate the similarity using chosen distance metric
     '''
     similarity = pairwise_distances(user1_features,user2_fetures,metric = metric)
     return similarity
