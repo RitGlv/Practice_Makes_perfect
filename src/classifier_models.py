@@ -24,8 +24,9 @@ X_train,y_train = train_data.fit_data(cols_for_first_iteration,cols_to_dummify,'
 test_data = CleanedData(test_path)
 X_test,y_test = test_data.fit_data(cols_for_first_iteration,cols_to_dummify,'totalMatch1')
 
-X_train = featurize.scale(X_train)
-X_test = featurize.scale(X_test)
+for data_set in [X_train,X_test]:
+  data_set = featurize.scale(data_set)
+
 
 y_train_class = map(lambda y: int(y<9), y_train)
 y_test_class = map(lambda y: int(y<9), y_test)
