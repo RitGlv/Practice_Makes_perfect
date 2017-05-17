@@ -41,12 +41,15 @@ class CleanedData(object):
         For new data, use "data_clean"
         '''
         self.df_all = self.rename_cols(self.df_all)
-        self.df_all = featurize.same_columns(self.df_all,'country1','country2')
+        cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']
+        self.df_all = featurize.create_similarity_per_interview(self.df_all,cols_to_categorical,categorical=True)
+        # self.df_all = featurize.same_columns(self.df_all,'country1','country2')
         # self.df_all = featurize.is_us(self.df_all)
-        self.time_to_datetime()
+        # self.time_to_datetime()
         self.df_with_needed_cols(cols_to_leave)
         self.df_transformed = featurize.dummify(self.df_transformed,cols_to_dummify)
         self.create_y(target,other_target_to_remove)
+        # self.df_transformed = featurize.create_similarity_per_interview(self.df_transformed,self.df_transformed.columns.values)
         return self.df_transformed, self.y
 
 

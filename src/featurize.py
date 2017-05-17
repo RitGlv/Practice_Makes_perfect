@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import pairwise_distances
+from scipy.spatial.distance import cosine
 
 def dummify(df,cols,constant_and_drop=False):
     '''
@@ -52,40 +53,53 @@ def is_us(df):
     df['is_us'] = map(lambda x: 'United States' in x, df['country'])
     return df
 
-def add_similarity_score(df,user1,user2):
+# def same_columns(df,col1,col2):
+#     df['same'+col1] = df[col1]==df[col2]
+#     return df
+
+def create_features_matrix(df,cols_to_keep,categorical = False):
     '''
-    Add a column for similarity score
+    Create a dataframe with all users and their scaled features for calculating similarity, using Interview information (meaning paired information).
+    Assumes simmetry in no of columns per each user
+    First split then dummify
+    '''
+    features_df = df[cols_to_keep]
+    no_of_cols = features_df.shape[1]
+    split1 = features_df.iloc[:,0:(no_of_cols/2)]
+    split2 = features_df.iloc[:,(no_of_cols/2):no_of_cols]
+    if categorical:
+        similarity_df = pd.DataFrame()
+        split2.columns = list(split1.columns.values)
+        for col in list(split1.columns.values):
+            similarity_df[col] = split1[col] == split2[col]
+        return np.asarray(similarity_df)
+    split1 = scale(split1)
+    split2 = scale(split2)
+    return np.asarray(split1), np.asarray(split2)
+
+def create_similarity_per_interview(df,cols_to_keep,metric = 'cosine',categorical=False):
+    '''
+    Get both users features vector and calculate the similarity using chosen distance metric
+    The output is a similarity score per matched interview
+    '''
+
+    copy = df.copy()
+    if categorical:
+        features = create_features_matrix(df,cols_to_keep,categorical)
+        copy['similarity'] = map(lambda x: sum(x)*1.0/len(x),features)
+        return copy
+
+    user1,user2 = create_features_matrix(df,cols_to_keep)
+    similarity_list = [cosine(user1[i],user2[i]) for i in range(len(user1))]
+    copy['similarity'] = similarity_list
+
+    return copy
+
+def create_characteristic():
+    '''
+    Aggregate the user's inforamtion up to the point of the interview
     '''
     pass
 
-def same_columns(df,col1,col2):
-    df['same'+col1] = df[col1]==df[col2]
-    return df
-
-def create_features_matrix(df,cols_to_keep,to_dummify = False,cols_to_dummify = None):
-    '''
-    Create a dataframe with all users and their scaled features for calculating similarity, using Interview information (meaning paired information).
-    The output is a similarity score per matched interview
-    '''
-    features_df = df[cols_to_keep]
-    if dummify:
-        features_df = dummify(features_df,cols_to_dummify)
-    features_df = scale(features_df)
-    all_matrix = np.asarray(features_df)
-    #add split df to create "2" vectors
-    features_matrix = all_matrix[:,1:]
-    #interview ID
-    id_matrix = all_matrix[:,0]
-    return features_matrix, id_matrix
-
-def create_similarity_per_interview(user1_features,user2_fetures,metric = 'cosine'):
-    '''
-    Get both users features vector and calculate the similarity using chosen distance metric
-    '''
-    similarity = pairwise_distances(user1_features,user2_fetures,metric = metric)
-    return similarity
-
-
 if __name__=="__main__":
-    cols_for_first_iteration = ['selfPrep','match','status','languageChanged','degree','questionChanged','experienceInYears','studyArea','nps','interviewsDonePriorToThisOne','is_us']
-    cols_to_dummify = ['status','languageChanged','degree','questionChanged','studyArea','is_us']
+    cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']

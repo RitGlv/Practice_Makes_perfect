@@ -5,8 +5,9 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, f1_score, recall_score
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,6 +26,7 @@ class Predictors(object):
         self.rmse = None
         self.importances = None
         self.prediction = None
+        self.f1 = None
 
     def fit_regressors(self,classifier=False):
         '''
@@ -33,8 +35,8 @@ class Predictors(object):
         self.fitted_regressors = {name : model.fit(self.X_train,self.y_train) for name,model in self.regressors.iteritems()}
         self.validate(classifier=classifier)
         self.find_best_model()
-        self.test_error()
-        self.get_feature_importances()
+        self.test_error(classifier=classifier)
+        # self.get_feature_importances()
 
     def validate(self,classifier=False):
         '''
@@ -51,6 +53,8 @@ class Predictors(object):
         Determine which is the best model
         '''
         mean_scores = {name : score.mean() for name,score in self.scores.iteritems()}
+        if classifier:
+            self.best_model = max(mean_scores,key = mean_scores.get)
         self.best_model = min(mean_scores,key = mean_scores.get)
 
     def test_error(self,classifier=False):
@@ -59,13 +63,21 @@ class Predictors(object):
         Save state for rmse for best model
         '''
         self.prediction = self.fitted_regressors[self.best_model].predict(self.X_test)
-        self.rmse = np.sqrt(mean_squared_error(self.prediction,self.y_test))
+        if classifier:
+            self.f1 = f1_score(self.prediction,self.y_test)
+        else:
+            self.rmse = np.sqrt(mean_squared_error(self.prediction,self.y_test))
 
     def test_error_base(self,classifier=False):
         '''
         Check test scores for best model, using MSE.
         Save state for rmse for best model
         '''
+        if classifier:
+            prediction = np.ones(len(self.y_test))
+            f1 = f1_score(prediction,self.y_test)
+            return f1
+
         prediction = np.ones(len(self.y_test))*(self.y_train.mean())
         rmse = np.sqrt(mean_squared_error(prediction,self.y_test))
         return rmse
