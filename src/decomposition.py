@@ -13,12 +13,15 @@ class decomposed(object):
         self.pca = None
         self.X_pca = None
 
-    def process(self,categories):
+    def process(self,categories,columns_to_drop):
         '''
         Get dataframe with only user information, columns with categorial data
         Save satet of processed data
         '''
-        pass
+        self.data = featurize. df_with_expertise(self.data,'experienceAreas1')
+        self.data = self.data[columns_to_leave]
+        self.data = featurize.dummify(self.data,categories)
+        #scale
 
     def fit(self,cols_to_leave,categories,n_components):
         self.process(categories)

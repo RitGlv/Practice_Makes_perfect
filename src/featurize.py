@@ -101,5 +101,29 @@ def create_characteristic():
     '''
     pass
 
+def get_experience_area(df,col):
+    '''
+    Get the unique set of areas of expertise out of the data.
+    Input: dataframe
+    Iterates over all the dataframe rows, the updates the set based in the string within each row
+    '''
+    expertise_set = set(df[col][0])
+    for ex in df[col]:
+        expertise_list = ex.strip('[]')
+        expertise_list = expertise_list.split(',')
+        expertise_set.update(expertise_list)
+    return expertise_set
+
+def df_with_expertise(df,col):
+    '''
+    Get dataframe and return a new dataframe with dummified columns for expertise
+    '''
+    df[col] = map(lambda x: "" if x=='[]' else x,df[col])
+    expertise = get_experience_area(df,col)
+    for ex in expertise:
+        df[ex] = map(lambda x: int(ex in x),df[col])
+    return df
+
+
 if __name__=="__main__":
     cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']
