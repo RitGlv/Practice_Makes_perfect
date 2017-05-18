@@ -10,6 +10,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.metrics import mean_squared_error, f1_score, recall_score
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
 
 class Predictors(object):
 

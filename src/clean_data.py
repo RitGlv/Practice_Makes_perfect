@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 import featurize
+from create_db import rename_cols
 
 class CleanedData(object):
 
@@ -9,17 +10,6 @@ class CleanedData(object):
         self.df_all = pd.read_csv(path)
         self.df_transformed = None
         self.y = None
-
-    def rename_cols(self,df):
-        '''
-        Chenging column names to the last part in the name,
-        indicating what the column really means
-        '''
-        no_of_cols = df.shape[1]
-        first_cols = [col.split('.')[-1] for col in df.columns.values][0:(no_of_cols/2)]
-        cols = [col+str(x) for x in range(1,3) for col in first_cols]
-        df.columns = cols
-        return df
 
     def time_to_datetime(self):
         '''
@@ -40,16 +30,10 @@ class CleanedData(object):
         Method using to creat training data, including train/test split.
         For new data, use "data_clean"
         '''
-        self.df_all = self.rename_cols(self.df_all)
-        cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']
-        self.df_all = featurize.create_similarity_per_interview(self.df_all,cols_to_categorical,categorical=True)
-        # self.df_all = featurize.same_columns(self.df_all,'country1','country2')
-        # self.df_all = featurize.is_us(self.df_all)
-        # self.time_to_datetime()
+        self.df_all = rename_cols(self.df_all)
         self.df_with_needed_cols(cols_to_leave)
         self.df_transformed = featurize.dummify(self.df_transformed,cols_to_dummify)
         self.create_y(target,other_target_to_remove)
-        # self.df_transformed = featurize.create_similarity_per_interview(self.df_transformed,self.df_transformed.columns.values)
         return self.df_transformed, self.y
 
 
@@ -57,23 +41,3 @@ class CleanedData(object):
         self.y = self.df_transformed.pop(target)
         if other_target_to_remove:
             self.df_transformed.pop(other_target_to_remove)
-    #
-    # def load_dataframes(self):
-    #     '''
-    #     Loading file into dataframe, merging dataframes into one
-    #     Assuming same column order between dataframes
-    #     '''
-    #     self.df_user_1 = pd.read_csv(self.paths[0])
-    #     self.df_user_2 = pd.read_csv(self.paths[1])
-    #     self.df_user_2.columns = self.df_user_1.columns.values
-    #     self.df_all = self.df_user_1.append(self.df_user_2)
-    #     self.df_user_1 = self.rename_cols(self.df_user_1)
-    #     self.df_user_2 = self.rename_cols(self.df_user_2)
-    #
-    #
-    # def create_data(self):
-    #     self.load_dataframes()
-    #     self.df_all = self.rename_cols(self.df_all)
-    #     X_train,X_test = train_test_split(self.df_all,test_size=0.2,random_state=1)
-    #     self.df_all = X_train
-    #     return X_train, X_test
