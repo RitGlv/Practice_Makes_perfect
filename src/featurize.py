@@ -122,6 +122,7 @@ def df_with_expertise(df,col):
     expertise = get_experience_area(df,col)
     for ex in expertise:
         df[ex] = map(lambda x: int(ex in x),df[col])
+    df = df.rename(columns = {"":"Expertise_not_mentioned"})
     return df
 
 
