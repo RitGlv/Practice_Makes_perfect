@@ -21,7 +21,8 @@ class SimilarityRecommender(object):
         self.recommended = []
 
     def fit(self):
-        pass
+        self.get_ratings_matrix()
+        self.get_similarity_score()
 
     def predict_one(self,user,n):
         '''
@@ -59,7 +60,7 @@ class SimilarityRecommender(object):
 
     def model_eval(self,users):
         '''
-        Asses model based on
+        Asses model based on AUC for different n for recommendation
         '''
         # #pseudocode
         # for user in users:
