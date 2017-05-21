@@ -30,14 +30,23 @@ class decomposed(object):
         self.pca = PCA(n_components = n_components)
         self.X_pca = self.pca.fit_transform(self.processed)
 
+    def assess(self):
+        '''
+        Check the amount of explained variance within the components
+        '''
+        var = self.pca.explained_variance_ratio_
+        return sum(var)
+
 if __name__=="__main__":
     train_path = 'data/full_data_one_row_trainby_user.csv'
     test_path = 'data/full_data_one_row_testby_user.csv'
     df = pd.read_csv(train_path)
-    users_df = df[['userId1','interviewsDonePriorToThisOne1']]
+    users_df = df[['userId1','interviewsDonePriorToThisOne1','totalMatch1']]
     cols_to_leave = ['selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1','interviewsDonePriorToThisOne1','likable1','hiring1','communication1','asInterviewer1','problemSolving1','codingSkills1']
 
     categories = ['degree1','status1','studyArea1']
 
     pca = decomposed(df)
-    pca.fit(cols_to_leave,categories,3)
+    pca.fit(cols_to_leave,categories,2)
+
+    #check components for static data vs. changing data over time

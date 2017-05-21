@@ -125,6 +125,10 @@ def df_with_expertise(df,col):
     df = df.rename(columns = {"":"Expertise_not_mentioned"})
     return df
 
+def good_match_bool(df):
+    df['good_match'] = (df.totalMatch1>7) & (np.abs((df.totalMatch1-2*df.match1))<3)
+    return df
+
 
 if __name__=="__main__":
     cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']

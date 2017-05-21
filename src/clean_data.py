@@ -30,7 +30,7 @@ class CleanedData(object):
         Method using to creat training data, including train/test split.
         For new data, use "data_clean"
         '''
-        self.df_all = rename_cols(self.df_all)
+        # self.df_all = rename_cols(self.df_all)
         self.df_with_needed_cols(cols_to_leave)
         self.df_transformed = featurize.dummify(self.df_transformed,cols_to_dummify)
         self.create_y(target,other_target_to_remove)

@@ -66,7 +66,16 @@ def rename_cols(df):
     df.columns = cols
     return df
 
-
+def add_matched_user_id(path):
+    df = pd.read_csv(path)
+    no_of_rows = df.shape[0]
+    df['matched_user'] = ""
+    df1 = df['userId1'][no_of_rows/2:no_of_rows:]
+    df2 = df['userId1'][0:no_of_rows/2]
+    matched = df1.append(df2)
+    matched = matched.reset_index(drop=True)
+    df['matched_user'] = matched
+    (df.set_index('userId1')).to_csv(path.split('.')[0]+'with_matched_user.csv')
 
 if __name__=="__main__":
     collection_name = 'interviews'

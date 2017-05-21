@@ -16,12 +16,23 @@ class SimilarityRecommender(object):
         #user_ids should be a concat of id and intervie_no to treat users differently at different points in time
         self.user_matrix = np.asarray(user_ids)
         self.features = features_df
+        self.baseline = None
 
     def fit(self):
         pass
 
-    def predict_one(self):
-        pass
+    def predict_one(self,user,no_of_similar_users):
+        '''
+        returns a list pf top N matched users
+        '''
+        #pseudocode
+        similar_users = self.get_most_similar_users(user)
+        top_similar_users = similar_users[:no_of_similar_users]
+        good_matches = []
+        for user in similar_users:
+            similart_matches = self.get_most_similar_users(user)
+            top_similar_matches = [:no_of_similar_users]
+            good_matches.append(top_similar_matches)
 
     def get_most_similar_users(self,user):
         '''
@@ -29,6 +40,7 @@ class SimilarityRecommender(object):
         User defined as a row in the sim_matrix
         Treat users at different point of time as different users
         '''
+        #pseudocode
         user_location = self.user_matrix[0]== user
         similar_users = self.sim_matrix[user_location]
         similar_users_index = similar_users.argsort[::-1]
@@ -40,10 +52,22 @@ class SimilarityRecommender(object):
         Get a matrix with all of the users matching scores
         Considering two options = symmetric matching (weighted mean? 0.75(user_rating)+0.25(other_user_rating)) or individual
         '''
-        pass
+        #pseudocode
+        self.match_matrix = self.ratings.pivot(index='userId1', columns='userId2', values='totalMatch1').fillna(-1)
 
     def get_similarity_score(self,metric='eucalidian'):
         '''
         Calculates similarity between every 2 users
         '''
         self.sim_matrix = pairwise_distances(self.user_matrix,metric=metric)
+
+    def baseline_model(self):
+        self.baseline = np.zeros(self.ratings.shape)
+
+    def asses_model(self,users):
+        '''
+        Asses model based on
+        '''
+        #pseudocode
+        for user in users:
+            for i in range(self.ratings[user])
