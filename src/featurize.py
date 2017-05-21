@@ -129,6 +129,21 @@ def good_match_bool(df):
     df['good_match'] = (df.totalMatch1>7) & (np.abs((df.totalMatch1-2*df.match1))<3)
     return df
 
+def dataframe_for_matrix(df):
+    '''
+    Remove duplicates - cases when users were matched more that once
+    '''
+    df['both'] = df['userId1']+df['matched_user']
+    new = df.drop_duplicates('both')
+    return new
+
+def feturized_by_unique_user(df):
+    '''
+    Get a DataFrame with features, return the grouped df with mean
+    Assumues userId has been set as index
+    '''
+    grouped_df = df.groupby(level=0).mean()
+    return grouped_df
 
 if __name__=="__main__":
     cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']

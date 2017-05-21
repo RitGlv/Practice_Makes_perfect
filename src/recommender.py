@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 import featurize
+reload (featurize)
 
 class SimilarityRecommender(object):
     '''
@@ -10,64 +11,66 @@ class SimilarityRecommender(object):
     Currently works with static info, future: incorporate feature change over time
     '''
 
-    def __init__(self,features_df,user_ids):
+    def __init__(self,features_df,ratings_df):
+        #ratings_df = processed matrix of match rating per interview
         self.ratings = None
         self.sim_matrix = None
-        #user_ids should be a concat of id and intervie_no to treat users differently at different points in time
-        self.user_matrix = np.asarray(user_ids)
+        #features_df = processed matrix of features per user,assumes userId as index
         self.features = features_df
         self.baseline = None
+        self.recommended = []
 
     def fit(self):
         pass
 
-    def predict_one(self,user,no_of_similar_users):
+    def predict_one(self,user,n):
         '''
-        returns a list pf top N matched users
+        Returns a list pf top N matched users
         '''
-        #pseudocode
-        similar_users = self.get_most_similar_users(user)
-        top_similar_users = similar_users[:no_of_similar_users]
-        good_matches = []
-        for user in similar_users:
-            similart_matches = self.get_most_similar_users(user)
-            top_similar_matches = [:no_of_similar_users]
-            good_matches.append(top_similar_matches)
+        n_most_similar = self.get_most_similar_users(user,n)
+        for similar_user in n_most_similar:
+            matched = np.asarray([self.ratings.index==similar_user]).argmax()
+            self.recommended.append(get_most_similar_users(matched,n))
 
-    def get_most_similar_users(self,user):
+    def get_most_similar_users(self,user,n):
         '''
         Ranked list of the most similar users to the requested user
         User defined as a row in the sim_matrix
         Treat users at different point of time as different users
         '''
-        #pseudocode
-        user_location = self.user_matrix[0]== user
-        similar_users = self.sim_matrix[user_location]
-        similar_users_index = similar_users.argsort[::-1]
-        ranked_users = self.user_matrix[similar_users_index]
-        return ranked_users
+        sorted_indices=np.argsort(self.sim_matrix[self.feafeatures.index==user])
+        n_most_similar= sorted_similarity[0][:n]
+        return n_most_similar
 
-    def get_ratings_matrix(self):
+    def get_ratings_matrix(self,index='userId1', columns='matched_user', values='totalMatch1'):
         '''
         Get a matrix with all of the users matching scores
-        Considering two options = symmetric matching (weighted mean? 0.75(user_rating)+0.25(other_user_rating)) or individual
         '''
-        #pseudocode
-        self.match_matrix = self.ratings.pivot(index='userId1', columns='userId2', values='totalMatch1').fillna(-1)
+        self.match_matrix = self.ratings.pivot(index=index, columns=columns, values=values).fillna(-1)
 
     def get_similarity_score(self,metric='eucalidian'):
         '''
         Calculates similarity between every 2 users
         '''
-        self.sim_matrix = pairwise_distances(self.user_matrix,metric=metric)
+        self.sim_matrix = pairwise_distances(self.features_df,metric=metric)
 
-    def baseline_model(self):
-        self.baseline = np.zeros(self.ratings.shape)
+    def baseline_model_random_choice(self):
+        #to set random choice
 
-    def asses_model(self,users):
+    def model_eval(self,users):
         '''
         Asses model based on
         '''
-        #pseudocode
-        for user in users:
-            for i in range(self.ratings[user])
+        # #pseudocode
+        # for user in users:
+        #     for i in range(self.ratings[user])
+        pass
+
+
+if __name__=="__main__":
+    path = 'data/full_data_one_row_trainby_userwith_matched_user.csv'
+    df = pd.read_csv(path)
+    min_df = df[['userId1','matched_user','totalMatch1','match1']]
+    with_match_type = featurize.good_match_bool(min_df)
+    new = featurize.dataframe_for_matrix(with_match_type)
+    piv = new.pivot(index='userId1', columns='matched_user', values='totalMatch1').fillna(0)
