@@ -57,7 +57,8 @@ class SimilarityRecommender(object):
 
     def baseline_model_random_choice(self):
         #to set random choice
-
+        pass
+        
     def model_eval(self,users):
         '''
         Asses model based on AUC for different n for recommendation

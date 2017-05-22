@@ -166,8 +166,6 @@ def create_y_by_min(df,col1,col2):
     y = df[[col1,col2]].min(axis=1)
     return y
 
-def compare_areas_of_expertise(df):
-    pass
 
 if __name__=="__main__":
     cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']

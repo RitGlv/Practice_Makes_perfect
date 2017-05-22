@@ -23,6 +23,7 @@ class decomposed(object):
         self.processed = featurize. df_with_expertise(self.data,'experienceAreas1')
         self.processed.pop('experienceAreas1')
         self.processed = featurize.dummify(self.processed,categories)
+        self.processed = featurize.feturized_by_unique_user(self.processed)
         #scale
 
     def fit(self,cols_to_leave,categories,n_components):
@@ -47,8 +48,10 @@ if __name__=="__main__":
     categories = ['degree1','status1','studyArea1']
 
     pca = decomposed(df)
-    pca.fit(cols_to_leave,categories,2)
+    pca.fit(cols_to_leave,categories,3)
 
-    
+
+
+
 
     #check components for static data vs. changing data over time
