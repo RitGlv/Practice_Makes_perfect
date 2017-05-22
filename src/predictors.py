@@ -7,7 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import mean_squared_error, f1_score, recall_score
+from sklearn.metrics import mean_squared_error, f1_score, recall_score, roc_auc_score
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
@@ -45,7 +45,7 @@ class Predictors(object):
         Get cross val scores (mse) to choose the best model
         '''
         if classifier:
-            self.scores  = {name : cross_val_score(model,self.X_train,self.y_train,scoring="f1")*-1 for name,model in self.fitted_regressors.iteritems()}
+            self.scores  = {name : cross_val_score(model,self.X_train,self.y_train,scoring="roc_auc")*-1 for name,model in self.fitted_regressors.iteritems()}
         else:
             self.scores  = {name : cross_val_score(model,self.X_train,self.y_train,scoring="neg_mean_squared_error")*-1 for name,model in self.fitted_regressors.iteritems()}
 
@@ -65,7 +65,7 @@ class Predictors(object):
         '''
         self.prediction = self.fitted_regressors[self.best_model].predict(self.X_test)
         if classifier:
-            self.f1 = f1_score(self.prediction,self.y_test)
+            self.f1 = roc_auc_score(self.prediction,self.y_test)
         else:
             self.rmse = np.sqrt(mean_squared_error(self.prediction,self.y_test))
 
@@ -76,10 +76,10 @@ class Predictors(object):
         '''
         if classifier:
             prediction = np.ones(len(self.y_test))
-            f1 = f1_score(prediction,self.y_test)
+            f1 = roc_auc_score(prediction,self.y_test)
             return f1
 
-        prediction = np.ones(len(self.y_test))*(self.y_train.mean())
+        prediction = np.ones(len(self.y_test))*(self.y_train.median())
         rmse = np.sqrt(mean_squared_error(prediction,self.y_test))
         return rmse
 

@@ -45,19 +45,7 @@ def scale(df):
             df[col] = df[col].apply(lambda x: (x-min_col)*1.0/(max_col-min_col))
     return df
 
-def is_us(df):
-    '''
-    Add a bool column to indicate whather the user if from US or not
-    '''
-    #change to country similarity?
-    df['is_us'] = map(lambda x: 'United States' in x, df['country'])
-    return df
-
-# def same_columns(df,col1,col2):
-#     df['same'+col1] = df[col1]==df[col2]
-#     return df
-
-def create_features_matrix(df,cols_to_keep,categorical = False):
+def create_features_matrix(df,cols_to_keep,categorical = False,expertise_col=None):
     '''
     Create a dataframe with all users and their scaled features for calculating similarity, using Interview information (meaning paired information).
     Assumes simmetry in no of columns per each user
@@ -70,9 +58,16 @@ def create_features_matrix(df,cols_to_keep,categorical = False):
     if categorical:
         similarity_df = pd.DataFrame()
         split2.columns = list(split1.columns.values)
+        # import pdb; pdb.set_trace()
+        if expertise_col:
+            for split in [split1,split2]:
+                split = df_with_expertise(split,expertise_col)
+
+                # import pdb; pdb.set_trace()
         for col in list(split1.columns.values):
-            similarity_df[col] = split1[col] == split2[col]
-        return np.asarray(similarity_df)
+            if len(col)>2:
+                similarity_df[col] = split1[col] == split2[col]
+        return similarity_df
     split1 = scale(split1)
     split2 = scale(split2)
     return np.asarray(split1), np.asarray(split2)
@@ -144,6 +139,35 @@ def feturized_by_unique_user(df):
     '''
     grouped_df = df.groupby(level=0).mean()
     return grouped_df
+
+def same_columns(df,col1,col2):
+    df['same'+col1] = df[col1]==df[col2]
+    return df
+
+def is_us(df):
+    '''
+    Add a bool column to indicate whather the user if from US or not
+    '''
+    df['is_us'] = map(lambda x: 'United States' in x, df['country'])
+    return df
+
+def years_delta(df,col1,col2):
+    '''
+    Return diff in yesra of experience
+    Scale years?
+    '''
+    df['years_delta'] = np.abs(df[col1]-df[col2])
+    return df
+
+def create_y_by_min(df,col1,col2):
+    '''
+    Define y as minimal score between match1 and match2
+    '''
+    y = df[[col1,col2]].min(axis=1)
+    return y
+
+def compare_areas_of_expertise(df):
+    pass
 
 if __name__=="__main__":
     cols_to_categorical = ['education1','country1','degree1','status1','studyArea1','education2','country2','degree2','status2','studyArea2']

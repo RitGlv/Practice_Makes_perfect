@@ -25,12 +25,23 @@ class CleanedData(object):
         '''
         self.df_transformed = self.df_all[cols]
 
+    def rename_cols(df):
+        '''
+        Chenging column names to the last part in the name,
+        indicating what the column really means
+        '''
+        no_of_cols = df.shape[1]
+        first_cols = [col.split('.')[-1] for col in df.columns.values][0:(no_of_cols/2)]
+        cols = [col+str(x) for x in range(1,3) for col in first_cols]
+        df.columns = cols
+        return df
+
     def fit_data(self,cols_to_leave,cols_to_dummify,target,other_target_to_remove=None,constant_and_drop=False):
         '''
         Method using to creat training data, including train/test split.
         For new data, use "data_clean"
         '''
-        # self.df_all = rename_cols(self.df_all)
+        self.df_all = rename_cols(self.df_all)
         self.df_with_needed_cols(cols_to_leave)
         self.df_transformed = featurize.dummify(self.df_transformed,cols_to_dummify)
         self.create_y(target,other_target_to_remove)

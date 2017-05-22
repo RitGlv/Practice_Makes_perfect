@@ -61,6 +61,9 @@ class SimilarityRecommender(object):
     def model_eval(self,users):
         '''
         Asses model based on AUC for different n for recommendation
+        Predict all
+        predict 75%
+        predict 50%
         '''
         # #pseudocode
         # for user in users:
