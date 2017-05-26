@@ -26,7 +26,10 @@ class SimilarityRecommender(object):
         self.features = features_df
         self.baseline = None
         self.recommended = []
-
+        self.false_positive_users = []
+        self.true_positive_users = []
+        self.all_recommendations = []
+        self.count=0
 
     def fit(self):
         self.get_ratings_matrix()
@@ -36,6 +39,7 @@ class SimilarityRecommender(object):
         '''
         Returns a list pf top N matched users
         '''
+        self.recommended = []
         n_most_similar = self.get_most_similar_users(user,n)
         for similar_user in n_most_similar:
             if np.asarray(self.match_matrix.iloc[similar_user]).max():
@@ -53,7 +57,7 @@ class SimilarityRecommender(object):
         Treat users at different point of time as different users
         '''
         sorted_indices=np.argsort(self.sim_matrix[self.features.index==user])
-        n_most_similar= sorted_indices[0][1:n]
+        n_most_similar= sorted_indices[0][1:(n+1)]
         return n_most_similar
 
     def get_ratings_matrix(self,index='userId1', columns='matched_user', values='good_match'):
@@ -68,57 +72,57 @@ class SimilarityRecommender(object):
         '''
         self.sim_matrix = pairwise_distances(self.features,metric=metric)
 
-    def baseline_model_random_choice(self):
-        #to set random choice
-        pass
-
-    def model_eval(self,users):
+    def model_eval(self,n):
         '''
         Asses model based on AUC for different n for recommendation
         Predict all
-        predict 75%
-        predict 50%
-        predict 25%
+        n=2,3,5,10
         '''
-        # #pseudocode
-        # for user in users:
-        #     for i in range(self.ratings[user])
-        pass
-
+        self.eval_mat = np.zeros(self.sim_matrix.shape)*-1.0
+        for user in self.match_matrix.index:
+            self.predict_one(user,n)
+            for predicted_match in self.recommended:
+                self.eval_mat[self.match_matrix.index==user][0][self.match_matrix.index==predicted_match]=1
+                if self.match_matrix[self.match_matrix.index==predicted_match][user][0] == 0:
+                    self.false_positive_users.append((user,predicted_match))
+                elif self.match_matrix[self.match_matrix.index==predicted_match][user][0] == 1:
+                    self.true_positive_users.append((user,predicted_match))
+            self.all_recommendations.append((user,self.recommended))
+            self.count+=1
 
 if __name__=="__main__":
 
     '''
     Load data for all interview match rating
     '''
-    path = 'data/full_data_one_row_trainby_userwith_matched_user.csv'
+    path = 'data/full_data_one_row_swap_idsby_userwith_matched_user.csv'
     df_for_rating = pd.read_csv(path)
     min_df = df_for_rating[['userId1','matched_user','totalMatch1','match1']]
     with_match_type = featurize.good_match_bool(min_df)
     #interview_rating is a dataframe with interview rating
     interview_rating = featurize.dataframe_for_matrix(with_match_type)
 
-    train_path = 'data/full_data_one_row_trainby_user.csv'
+    train_path = 'data/full_data_one_row_swap_idsby_user.csv'
     # test_path = 'data/full_data_one_row_testby_user.csv'
     df = pd.read_csv(train_path).set_index('userId1')
+    df['experienceInYears1'] = np.sqrt(df['experienceInYears1'])
 
     #columns to leave in the static inforamtion(pre_interview) grouped user dataframe
     cols_to_leave = ['selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1']
 
-    #columns to leave in the ordinal grouped user dataframe
-    cols_to_leave2 =['match1','selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1','likable1','hiring1','communication1','asInterviewer1','problemSolving1','codingSkills1']
-    pca2 = decomposed(df)
-    pca2.fit(cols_to_leave2,[],3)
-
+    # #columns to leave in the ordinal grouped user dataframe
+    # cols_to_leave2 =['match1','selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1','likable1','hiring1','communication1','asInterviewer1','problemSolving1','codingSkills1']
+    # pca2 = decomposed(df)
+    # pca2.fit(cols_to_leave2,[],4)
 
     categories = ['degree1','status1','studyArea1']
     pca = decomposed(df)
-    pca.fit(cols_to_leave,categories,3)
+    pca.fit(cols_to_leave,categories,4)
     df_pca = pd.DataFrame(pca.X_pca).set_index(pca.processed.index)
     sim = SimilarityRecommender(df_pca,interview_rating)
     sim.fit()
 
     #to plot the pca's, create a y_column to indicate the avg match of a user
-    y_user_match = np.asarray(pca2.processed['asInterviewer1'])
-    y_labels = y_user_match>3
-    plot_pca(pca.X_pca,y_labels,[True,False])
+    # y_user_match = np.asarray(pca2.processed['asInterviewer1'])
+    # y_labels = y_user_match>3
+    # plot_pca(pca.X_pca,y_labels,[True,False])

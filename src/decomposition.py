@@ -51,7 +51,4 @@ if __name__=="__main__":
     pca.fit(cols_to_leave,categories,3)
 
 
-
-
-
     #check components for static data vs. changing data over time

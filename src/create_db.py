@@ -51,7 +51,7 @@ def load_dataframes(path):
     df_user_1 = df.iloc[:,0:(no_of_cols/2)]
     df_user_2 = df.iloc[:,(no_of_cols/2):no_of_cols]
     df_user_2.columns = df_user_1.columns.values
-    df_all = df_user_1.append(df_user_2).set_index('userId1')
+    df_all = df_user_1.append(df_user_2)#.set_index('userId1')
     df_all.to_csv(path.split('.')[0]+'by_user.csv')
 
 
@@ -77,12 +77,12 @@ def add_matched_user_id(path):
     df['matched_user'] = matched
     (df.set_index('userId1')).to_csv(path.split('.')[0]+'with_matched_user.csv')
 
-if __name__=="__main__":
-    collection_name = 'interviews'
-    db_name = 'project'
-    collection = connect(db_name,collection_name)
-    split_and_save('data/full_data_one_row.csv')
-    train_path = 'data/full_data_one_row_train.csv'
-    test_path = 'data/full_data_one_row_test.csv'
-    cols = ['feedbacks.0.giver.interviewsDonePriorToThisOne','feedbacks.1.giver.interviewsDonePriorToThisOne']
-    create_first_interview([train_path,test_path],cols)
+# if __name__=="__main__":
+#     # collection_name = 'interviews'
+#     # db_name = 'project'
+#     # collection = connect(db_name,collection_name)
+#     # split_and_save('data/full_data_one_row.csv')
+#     # train_path = 'data/full_data_one_row_train.csv'
+#     # test_path = 'data/full_data_one_row_test.csv'
+#     # cols = ['feedbacks.0.giver.interviewsDonePriorToThisOne','feedbacks.1.giver.interviewsDonePriorToThisOne']
+#     # create_first_interview([train_path,test_path],cols)

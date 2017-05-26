@@ -79,7 +79,7 @@ class Predictors(object):
             f1 = roc_auc_score(prediction,self.y_test)
             return f1
 
-        prediction = np.ones(len(self.y_test))*(self.y_train.median())
+        prediction = np.ones(len(self.y_test))*(self.y_train.mean())
         rmse = np.sqrt(mean_squared_error(prediction,self.y_test))
         return rmse
 
