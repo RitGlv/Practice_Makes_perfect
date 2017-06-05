@@ -95,34 +95,25 @@ if __name__=="__main__":
     '''
     Load data for all interview match rating
     '''
+
     path = 'data/full_data_one_row_swap_idsby_userwith_matched_user.csv'
     df_for_rating = pd.read_csv(path)
+
+    #crate dataframe for match rating matrix
     min_df = df_for_rating[['userId1','matched_user','totalMatch1','match1']]
     with_match_type = featurize.good_match_bool(min_df)
-    #interview_rating is a dataframe with interview rating
     interview_rating = featurize.dataframe_for_matrix(with_match_type)
 
     train_path = 'data/full_data_one_row_swap_idsby_user.csv'
-    # test_path = 'data/full_data_one_row_testby_user.csv'
     df = pd.read_csv(train_path).set_index('userId1')
     df['experienceInYears1'] = np.sqrt(df['experienceInYears1'])
 
     #columns to leave in the static inforamtion(pre_interview) grouped user dataframe
     cols_to_leave = ['selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1']
-
-    # #columns to leave in the ordinal grouped user dataframe
-    # cols_to_leave2 =['match1','selfPrep1', 'experienceAreas1','experienceInYears1','degree1', 'status1','studyArea1','likable1','hiring1','communication1','asInterviewer1','problemSolving1','codingSkills1']
-    # pca2 = decomposed(df)
-    # pca2.fit(cols_to_leave2,[],4)
-
     categories = ['degree1','status1','studyArea1']
+    
     pca = decomposed(df)
-    pca.fit(cols_to_leave,categories,4)
+    pca.fit(cols_to_leave,categories,6)
     df_pca = pd.DataFrame(pca.X_pca).set_index(pca.processed.index)
     sim = SimilarityRecommender(df_pca,interview_rating)
     sim.fit()
-
-    #to plot the pca's, create a y_column to indicate the avg match of a user
-    # y_user_match = np.asarray(pca2.processed['asInterviewer1'])
-    # y_labels = y_user_match>3
-    # plot_pca(pca.X_pca,y_labels,[True,False])

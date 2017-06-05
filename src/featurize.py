@@ -116,6 +116,8 @@ def df_with_expertise(df,col):
     df[col] = map(lambda x: "" if x=='[]' else x,df[col])
     expertise = get_experience_area(df,col)
     for ex in expertise:
+        if len(ex)==1:
+            continue 
         df[ex] = map(lambda x: int(ex in x),df[col])
     df = df.rename(columns = {"":"Expertise_not_mentioned"})
     return df

@@ -28,7 +28,7 @@ class decomposed(object):
 
     def fit(self,cols_to_leave,categories,n_components):
         self.process(categories,cols_to_leave)
-        self.pca = PCA(n_components = n_components)
+        self.pca = PCA(svd_solver='full',n_components = n_components)
         self.X_pca = self.pca.fit_transform(self.processed)
 
     def assess(self):
@@ -49,6 +49,3 @@ if __name__=="__main__":
 
     pca = decomposed(df)
     pca.fit(cols_to_leave,categories,3)
-
-
-    #check components for static data vs. changing data over time
